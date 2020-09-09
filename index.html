@@ -1,0 +1,251 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Edit delete DataTables record with AJAX and PHP</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- Datatable CSS -->
+        <link href='DataTables/datatables.min.css' rel='stylesheet' type='text/css'>
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
+
+        <!-- jQuery Library -->
+        <script src="jquery-3.5.1.min.js"></script>
+        
+        <!-- Bootstrap JS -->
+        <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+
+        <!-- Datatable JS -->
+        <script src="DataTables/datatables.min.js"></script>
+        
+    </head>
+    <body >
+
+        <div class='container'>
+
+            <!-- Modal -->
+            <div id="updateModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Update</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="customerName" >Customer Name:</label>
+                                <input type="text" class="form-control" id="customerName" placeholder="Enter name" required>            
+                            </div>
+                            <div class="form-group">
+                                <label for="customerEmail" >Customer Email:</label>    
+                                <input type="email" class="form-control" id="customerEmail"  placeholder="Enter email">                          
+                            </div>      
+                            <div class="form-group">
+                                <label for="classPassName" >Class Pass Name:</label>
+                                <input type="text" class="form-control" id="classPassName"  placeholder="Enter date">                          
+                            </div>   
+                            <div class="form-group">
+                                <label for="purchasedDate" >Purchased Date:</label>    
+                                <input type="date" class="form-control" id="purchasedDate"  placeholder="Enter date">                          
+                            </div>
+                            <div class="form-group">
+                                <label for="expiredDate" >Expiry Date</label>    
+                                <input type="date" class="form-control" id="expiredDate"  placeholder="Enter date">                          
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="status" >Status:</label>    
+                                <select id='status' class="form-control">
+                                    <option value='active'>Active</option>
+                                    <option value='inactive'>Inactive</option>
+                                </select>    
+                            </div>
+                            
+                             <div class="form-group">
+                                <label for="classPassLimit" ># of times Used</label>    
+                                <input type="text" class="form-control" id="classPassLimit"  placeholder="Enter number">                          
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="classPassUses" ># of Uses</label>    
+                                <input type="text" class="form-control" id="classPassUses"  placeholder="Enter number">                          
+                            </div>
+                            
+                            
+                            
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <input type="hidden" id="txt_userid" value="0">
+                            <button type="button" class="btn btn-success btn-sm" id="btn_save">Save</button>
+                            <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Table -->
+            <table id='userTable' class='display dataTable' width='100%'>
+                <thead>
+                    <tr>
+                        <th>Customer Name:</th>
+                        <th>Customer Email:</th>
+                        <th>Class Pass Name:</th>
+                        <th>Purchased Date:</th>
+                        <th>Expired Date:</th>
+                        <th>Status:</th>
+                        <th># of Uses</th>
+                        <th># Used:</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                
+            </table>
+
+        </div>
+        
+
+        <!-- Script -->
+        <script>
+        $(document).ready(function(){
+
+            // DataTable
+            var userDataTable = $('#userTable').DataTable({
+                'processing': true,
+                'serverSide': true,
+                'serverMethod': 'post',
+                'ajax': {
+                    'url':'ajaxfile.php'
+                },
+                'columns': [
+                    { data: 'customerName' },
+                    { data: 'customerEmail' },
+                    { data: 'classPassName' },
+                    { data: 'purchasedDate' },
+                    { data: 'expiredDate' },
+                    { data: 'status' },
+                    { data: 'classPassLimit' },
+                    { data: 'classPassUses' },
+                    { data: 'action' },
+
+                ]
+            });
+
+
+            // Update record
+            $('#userTable').on('click','.updateUser',function(){
+                var id = $(this).data('id');
+
+                $('#txt_userid').val(id);
+
+                // AJAX request
+                $.ajax({
+                    url: 'ajaxfile.php',
+                    type: 'post',
+                    data: {request: 2, id: id},
+                    dataType: 'json',
+                    success: function(response){
+                        if(response.status == 1){
+
+                            $('#customerName').val(response.data.customerName);
+                            $('#customerEmail').val(response.data.customerEmail);
+                            $('#classPassName').val(response.data.classPassName);
+                            $('#purchasedDate').val(response.data.purchasedDate);
+                            $('#expiredDate').val(response.data.expiredDate);
+                            $('#status').val(response.data.status);
+                            $('#classPassLimit').val(response.data.classPassLimit);
+                            $('#classPassUses').val(response.data.classPassUses);
+
+                        }else{
+                            alert("Invalid ID.");
+                        }
+                    }
+                });
+
+            });
+
+
+            // Save user 
+            $('#btn_save').click(function(){
+                var id = $('#txt_userid').val();
+
+                var customerName = $('#customerName').val().trim();
+                var customerEmail = $('#customerEmail').val().trim();
+                var classPassName = $('#classPassName').val().trim();
+                var purchasedDate = $('#purchasedDate').val().trim();
+                var expiredDate = $('#expiredDate').val().trim();
+                var status = $('#status').val().trim();
+                var classPassLimit = $('#classPassLimit').val().trim();
+                var classPassUses = $('#classPassUses').val().trim();
+
+                if(customerName !='' && customerEmail != '' && classPassName != ''&& classPassLimit != ''&& purchasedDate != ''&& expiredDate != ''&& status != ''&& classPassLimit != ''&& classPassUses != ''){
+
+                    // AJAX request
+                    $.ajax({
+                        url: 'ajaxfile.php',
+                        type: 'post',
+                        data: {request: 3, id: id,customerName: customerName, customerEmail: customerEmail, classPassName: classPassName, classPassLimit: classPassLimit, purchasedDate: purchasedDate, expiredDate: expiredDate, status: status, classPassUses: classPassUses},
+                        dataType: 'json',
+                        success: function(response){
+                            if(response.status == 1){
+                                alert(response.message);
+
+                                // Empty the fields
+                                $('#name','#email','#city').val('');
+                                $('#gender').val('male');
+                                $('#txt_userid').val(0);
+
+                                // Reload DataTable
+                                userDataTable.ajax.reload();
+
+                                // Close modal
+                                $('#updateModal').modal('toggle');
+                            }else{
+                                alert(response.message);
+                            }
+                        }
+                    });
+
+                }else{
+                    alert('Please fill all fields.');
+                }
+            });
+
+
+            // Delete record
+            $('#userTable').on('click','.deleteUser',function(){
+                var id = $(this).data('id');
+
+                var deleteConfirm = confirm("Are you sure?");
+                if (deleteConfirm == true) {
+                    // AJAX request
+                    $.ajax({
+                        url: 'ajaxfile.php',
+                        type: 'post',
+                        data: {request: 4, id: id},
+                        success: function(response){
+
+                            if(response == 1){
+                                alert("Record deleted.");
+
+                                // Reload DataTable
+                                userDataTable.ajax.reload();
+                            }else{
+                                alert("Invalid ID.");
+                            }
+                            
+                        }
+                    });
+                } 
+                
+            });
+        });
+        </script>
+    </body>
+
+</html>

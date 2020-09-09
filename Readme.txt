@@ -1,7 +1,5 @@
-Author: Yogesh singh
-Author URL: https://makitweb.com/
-Author Email: yogesh@makitweb.com
-Tutorial Link: https://makitweb.com/edit-delete-datatables-record-with-ajax-and-php/
+Author: Nicola Obiefuna
+Author Email: nmobi09@yahoo.com
 
 Instructions - 
 1. Import users.sql table in your MySQL database.
